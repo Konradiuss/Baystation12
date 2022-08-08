@@ -70,7 +70,7 @@
 	cell_type = /obj/item/cell/super
 	fire_delay = 25
 	projectile_type=/obj/item/projectile/beam/pulse/destroy
-	charge_cost= 40
+	charge_cost= 50
 
 /obj/item/gun/energy/pulse_rifle/destroyer/attack_self(mob/living/user as mob)
 	to_chat(user, "<span class='warning'>[src.name] has three settings, and they are all DESTROY.</span>")
