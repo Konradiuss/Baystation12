@@ -350,6 +350,7 @@ obj/item/gun/Destroy()
 	if(delay)
 		user.setClickCooldown(delay)
 	next_fire_time = world.time + delay
+	user.hud_used.update_ammo_hud(user, src)
 
 //obtains the next projectile to fire
 /obj/item/gun/proc/consume_next_projectile()
@@ -367,6 +368,7 @@ obj/item/gun/Destroy()
 /obj/item/gun/proc/handle_click_empty(mob/user)
 	if (user)
 		user.visible_message("*click click*", "<span class='danger'>*click*</span>")
+		user.hud_used.update_ammo_hud(user, src)
 	else
 		src.visible_message("*click click*")
 	playsound(src.loc, 'sound/weapons/empty.ogg', 100, 1)
@@ -704,7 +706,7 @@ obj/item/gun/Destroy()
 		else to_chat(user, "This weapon bulky like a <b>holdout pistol!</b> Even kid can shoot from it.")
 //[/INF]
 
-/obj/item/gun/proc/switch_firemodes()
+/obj/item/gun/proc/switch_firemodes(mob/user)
 
 	var/next_mode = get_next_firemode()
 	if(!next_mode || next_mode == sel_mode)
@@ -716,6 +718,7 @@ obj/item/gun/Destroy()
 	sel_mode = next_mode
 	var/datum/firemode/new_mode = firemodes[sel_mode]
 	new_mode.apply_to(src)
+	user.hud_used.update_ammo_hud(user, src)
 	playsound(loc, selector_sound, 50, 1)
 	return new_mode
 
@@ -732,6 +735,7 @@ obj/item/gun/Destroy()
 		new_mode = switch_firemodes(user)
 	if(new_mode)
 		to_chat(user, "<span class='notice'>\The [src] is now set to [new_mode.name].</span>")
+		user.hud_used.update_ammo_hud(user, src)
 
 /obj/item/gun/proc/toggle_safety(var/mob/user)
 	if (user?.is_physically_disabled())
@@ -794,3 +798,29 @@ obj/item/gun/Destroy()
 			var/picked = pick(targets)
 			afterattack(picked, user)
 			return 1
+
+/* TGMC Ammo HUD Port Begin */
+/obj/item/gun
+	var/hud_enabled = TRUE
+
+/obj/item/gun/proc/has_ammo_counter()
+	return FALSE
+
+/obj/item/gun/proc/get_ammo_type()
+	return FALSE
+
+/obj/item/gun/proc/get_ammo_count()
+	return FALSE
+
+/obj/item/gun/equipped(mob/living/user, slot) // When a gun is equipped to your hands, we'll add the HUD to the user. Pending porting over TGMC guncode where wielding is far more sensible.
+	if(slot == slot_l_hand || slot == slot_r_hand)
+		user.hud_used.add_ammo_hud(user, src)
+	else
+		user.hud_used.remove_ammo_hud(user, src)
+
+	return ..()
+
+/obj/item/gun/dropped(mob/living/user) // Ditto as above, we remove the HUD. Pending porting TGMC code to clean up this fucking nightmare of spaghetti.
+	user.hud_used.remove_ammo_hud(user, src)
+
+	..()
