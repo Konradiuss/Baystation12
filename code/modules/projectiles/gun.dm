@@ -804,7 +804,7 @@ obj/item/gun/Destroy()
 	var/hud_enabled = TRUE
 
 /obj/item/gun/proc/has_ammo_counter()
-	return FALSE
+	return TRUE
 
 /obj/item/gun/proc/get_ammo_type()
 	return FALSE
